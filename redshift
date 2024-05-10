@@ -1,0 +1,78 @@
+CREATE SCHEMA "instance";
+
+CREATE TABLE "instance".dim_agency ( 
+	agent_id             BIGINT  NOT NULL  ,
+	"division/work_unit" CHAR(255)    ,
+	agency               CHAR(255)    ,
+	CONSTRAINT pk_dim_agency PRIMARY KEY ( agent_id )
+ );
+
+CREATE TABLE "instance".dim_date ( 
+	date_id              BIGINT  NOT NULL  ,
+	posting_date         DATE    ,
+	"year"               INT    ,
+	"month"              INT    ,
+	"day"                DATE    ,
+	monthname            VARCHAR(255)    ,
+	dayname              VARCHAR(255)    ,
+	weekoftheyear        INT    ,
+	weekofthemonth       INT    ,
+	processing_date      DATE    ,
+	CONSTRAINT pk_dim_date PRIMARY KEY ( date_id )
+ );
+
+CREATE TABLE "instance".dim_location ( 
+	location_id          BIGINT  NOT NULL  ,
+	work_location        CHAR(255)    ,
+	CONSTRAINT pk_dim_location PRIMARY KEY ( location_id )
+ );
+
+CREATE TABLE "instance".dimjob_detail ( 
+	job_details__id      BIGINT  NOT NULL  ,
+	business_title       VARCHAR(255)    ,
+	job_description      VARCHAR(255)    ,
+	salaryrangefrom      MONEY    ,
+	salaryrangeto        MONEY    ,
+	salaryfrequency      DECIMAL(5,2)    ,
+	"#_of_positions"     INT    ,
+	civilservicetitle    VARCHAR(255)    ,
+	titleclassification  VARCHAR(255)    ,
+	titlecode_no         INT    ,
+	"level"              INT    ,
+	minimum_qual_requirements VARCHAR(255)    ,
+	preferred_skills     VARCHAR(255)    ,
+	career_level         INT    ,
+	"full-time/part-time_indicator" VARCHAR(255)    ,
+	residency_requirement BOOLEAN    ,
+	job_category         VARCHAR(255)    ,
+	CONSTRAINT pk_dimjob_detail PRIMARY KEY ( job_details__id )
+ );
+
+CREATE TABLE "instance".entity ( 
+ );
+
+CREATE TABLE "instance".facts_jobs ( 
+	job_id               BIGINT  NOT NULL  ,
+	"#_of_positions"     INT    ,
+	salary_range_from    MONEY    ,
+	salary_range_to      MONEY    ,
+	job_details__id      BIGINT  NOT NULL  ,
+	agent_id             BIGINT  NOT NULL  ,
+	date_id              BIGINT  NOT NULL  ,
+	location_id          BIGINT  NOT NULL  ,
+	CONSTRAINT pk_facts_j PRIMARY KEY ( job_id, job_details__id, agent_id, date_id, location_id )
+ );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dimjob_detail_0 FOREIGN KEY ( salary_range_from ) REFERENCES "instance".dimjob_detail( salaryrangefrom );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dimjob_detail_1 FOREIGN KEY ( salary_range_to ) REFERENCES "instance".dimjob_detail( salaryrangeto );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dimjob_detail FOREIGN KEY ( job_details__id ) REFERENCES "instance".dimjob_detail( job_details__id );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dimjob_detail_2 FOREIGN KEY ( "#_of_positions" ) REFERENCES "instance".dimjob_detail( "#_of_positions" );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dim_agency FOREIGN KEY ( agent_id ) REFERENCES "instance".dim_agency( agent_id );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dim_date FOREIGN KEY ( date_id ) REFERENCES "instance".dim_date( date_id );
+
+ALTER TABLE "instance".facts_jobs ADD CONSTRAINT fk_facts_jobs_dim_location FOREIGN KEY ( location_id ) REFERENCES "instance".dim_location( location_id );
